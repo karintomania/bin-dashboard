@@ -1,0 +1,103 @@
+<?php
+
+declare(strict_types=1);
+
+const API_URL = '%s/w/webpage/waste-collection-days'
+    . '?webpage_subpage_id=PAG0000570FEFFB1&webpage_token=%s&widget_action=handle_event';
+
+function config(): array
+{
+    $token = getenv('BIN_TOKEN');
+    $addressId = getenv('BIN_ADDRESS_ID');
+    $url = getenv('BIN_URL');
+
+    if (empty($token) || empty($addressId) || empty($url)) {
+        throw new RuntimeException('BIN_TOKEN, BIN_ADDRESS_ID and BIN_URL must be set');
+    }
+
+    return ['token' => $token, 'addressId' => $addressId, 'url' => $url];
+}
+
+function fetch_collections(string $url, string $token, string $addressId): array
+{
+    $body = http_build_query([
+        'code_action' => 'find_rounds',
+        'code_params' => json_encode(['addressId' => $addressId]),
+        'action_cell_id' => 'PCL0003988FEFFB1',
+        'action_page_id' => 'PAG0000570FEFFB1',
+    ]);
+
+    $ch = curl_init(sprintf(API_URL, $url, $token));
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $body,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_HTTPHEADER => [
+            'Accept: application/json, text/javascript, */*; q=0.01',
+            'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With: XMLHttpRequest',
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                . '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        ],
+    ]);
+
+    $response = curl_exec($ch);
+    if ($response === false) {
+        throw new RuntimeException('Request failed: ' . curl_error($ch));
+    }
+
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if ($status !== 200) {
+        throw new RuntimeException("Unexpected HTTP status: {$status}");
+    }
+
+    $data = json_decode($response, true, flags: JSON_THROW_ON_ERROR);
+
+    return $data['response']['collections'] ?? [];
+}
+
+function round_label(string $round): string
+{
+    return match ($round) {
+        'Food' => 'Food 🍏',
+        'General waste' => 'General 🗑️',
+        'Recycling' => 'Recycling ♻️',
+        default => $round,
+    };
+}
+
+function collection_date(string $sentence): ?string
+{
+    if (!preg_match('/ is (.*)/', $sentence, $m)) {
+        return null;
+    }
+
+    $date = DateTimeImmutable::createFromFormat('!l j F Y', trim($m[1]));
+    if ($date === false) {
+        return null;
+    }
+
+    return $date->format('Y/m/d');
+}
+
+function group_by_date(array $collections): array
+{
+    $grouped = [];
+
+    foreach ($collections as $collection) {
+        $label = round_label($collection['round'] ?? '');
+        foreach ($collection['upcomingCollections'] ?? [] as $sentence) {
+            $date = collection_date($sentence);
+            if ($date === null) {
+                continue;
+            }
+            $grouped[$date][] = $label;
+        }
+    }
+
+    ksort($grouped);
+
+    return $grouped;
+}

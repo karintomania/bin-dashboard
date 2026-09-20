@@ -1,0 +1,10 @@
+services:
+  bin-dashboard:
+    image: dunglas/frankenphp:php8.5
+    volumes:
+      - ./public:/app/public
+    environment:
+      SERVER_NAME: ":80"
+      BIN_TOKEN: "<token>"
+      BIN_ADDRESS_ID: "<address id>"
+      BIN_URL: "<url>"

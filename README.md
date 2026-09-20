@@ -1,0 +1,31 @@
+# Bin Collection Dashboard
+
+# Why
+My council's bin collection schedule page is quite hard to use, so I just made my own version.
+
+The council website requires me to type the street name and find my house every single time.
+
+This is a painful process, especially on my phone.
+
+<img width="970" height="890" alt="Gov_one" src="https://github.com/user-attachments/assets/c0f02396-9804-4065-8579-3c48ce0c3ac7" />
+
+Mine looks more straightforward. It just shows which bin to put on the street.
+
+<img width="970" height="890" alt="Screenshot from 2026-09-21 00-25-43" src="https://github.com/user-attachments/assets/ff016f68-806c-4e92-a612-7d22f08f3c05" />
+
+
+## Run
+
+Add Configuration values (`BIN_TOKEN`, `BIN_ADDRESS_ID` and `BIN_URL`) in `compose.yaml` as environment variables.
+
+Run the stack.
+```
+docker compose up
+```
+
+Then open http://localhost:8090/index.php.
+
+## Run Tests
+```
+docker compose -f compose_test.yaml up
+```

@@ -1,0 +1,9 @@
+services:
+  dashboard-test:
+    image: dunglas/frankenphp:php8.5
+    ports:
+      - "8090:80"
+    volumes:
+      - ./:/app/
+    entrypoint: "bash -c 'php /app/tests/*.php'"
+      

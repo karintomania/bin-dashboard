@@ -1,0 +1,128 @@
+:root {
+    --bg: #f5f5f3;
+    --fg: #1a1a1a;
+    --muted: #6b6b6b;
+    --card-bg: #ffffff;
+    --card-border: #e2e2e0;
+    --error-bg: #fdecea;
+    --error-border: #f5c6c0;
+    --error-fg: #7a1f14;
+    --badge-general-bg: #dff5df;
+    --badge-general-fg: #1e5c1e;
+    --badge-food-bg: #e6e6e6;
+    --badge-food-fg: #2b2b2b;
+    --badge-recycling-bg: #dbeeff;
+    --badge-recycling-fg: #114b7a;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #16171a;
+        --fg: #ececec;
+        --muted: #9a9a9a;
+        --card-bg: #212226;
+        --card-border: #33343a;
+        --error-bg: #3a1f1c;
+        --error-border: #63302a;
+        --error-fg: #f3b5ab;
+        --badge-food-bg: #1e3a20;
+        --badge-food-fg: #b8e6b8;
+        --badge-general-bg: #33343a;
+        --badge-general-fg: #ececec;
+        --badge-recycling-bg: #1c3450;
+        --badge-recycling-fg: #b7d9f7;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 2rem 1rem;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+}
+
+main {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+}
+
+.date {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.weekday {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+.badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+}
+
+.badge-food {
+    background: var(--badge-food-bg);
+    color: var(--badge-food-fg);
+}
+
+.badge-general {
+    background: var(--badge-general-bg);
+    color: var(--badge-general-fg);
+}
+
+.badge-recycling {
+    background: var(--badge-recycling-bg);
+    color: var(--badge-recycling-fg);
+}
+
+.error {
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    color: var(--error-fg);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 1rem 0.75rem;
+    }
+
+    .card {
+        padding: 0.75rem 1rem;
+    }
+}
