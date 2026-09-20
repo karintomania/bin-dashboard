@@ -7,11 +7,11 @@ The council website requires me to type the street name and find my house every 
 
 This is a painful process, especially on my phone.
 
-<img width="970" height="890" alt="Gov_one" src="https://github.com/user-attachments/assets/c0f02396-9804-4065-8579-3c48ce0c3ac7" />
+<img width="970" height="890" alt="Gov_one" src="https://github.com/user-attachments/assets/9ef04703-27c9-499d-bd00-dfd85ad3a238" />
 
 Mine looks more straightforward. It just shows which bin to put on the street.
 
-<img width="970" height="890" alt="Screenshot from 2026-09-21 00-25-43" src="https://github.com/user-attachments/assets/ff016f68-806c-4e92-a612-7d22f08f3c05" />
+<img width="970" height="890" alt="Screenshot from 2026-09-21 00-25-43" src="https://github.com/user-attachments/assets/2879fe50-c5d3-42c2-8eb7-d8dce49e5291" />
 
 
 ## Run
