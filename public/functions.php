@@ -17,7 +17,7 @@ function log_message(string $level, string $message, array $context = []): void
         $entry['context'] = $context;
     }
 
-    fwrite(STDOUT, json_encode($entry, JSON_UNESCAPED_SLASHES) . "\n");
+    fwrite(fopen('php://stdout', 'w'), json_encode($entry, JSON_UNESCAPED_SLASHES) . "\n");
 }
 
 const API_URL = '%s/w/webpage/waste-collection-days'
