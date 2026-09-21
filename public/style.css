@@ -25,10 +25,10 @@
         --error-bg: #3a1f1c;
         --error-border: #63302a;
         --error-fg: #f3b5ab;
-        --badge-food-bg: #1e3a20;
-        --badge-food-fg: #b8e6b8;
-        --badge-general-bg: #33343a;
-        --badge-general-fg: #ececec;
+        --badge-general-bg: #1e3a20;
+        --badge-general-fg: #b8e6b8;
+        --badge-food-bg: #33343a;
+        --badge-food-fg: #ececec;
         --badge-recycling-bg: #1c3450;
         --badge-recycling-fg: #b7d9f7;
     }
