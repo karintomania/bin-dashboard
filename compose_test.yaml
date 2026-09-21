@@ -5,5 +5,6 @@ services:
       - "8090:80"
     volumes:
       - ./:/app/
-    entrypoint: "bash -c 'php /app/tests/*.php'"
+    entrypoint: >
+      bash -c 'for f in /app/tests/*_test.php; do echo "== $$f"; php "$$f" || exit 1; done'
       

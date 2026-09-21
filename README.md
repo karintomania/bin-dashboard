@@ -25,6 +25,8 @@ docker compose up
 
 Then open http://localhost:8090/index.php.
 
+Responses are cached in `cache.json` for 6 hours; delete the file to force a refresh.
+
 ## Run Tests
 ```
 docker compose -f compose_test.yaml up

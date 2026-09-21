@@ -5,6 +5,9 @@ declare(strict_types=1);
 const API_URL = '%s/w/webpage/waste-collection-days'
     . '?webpage_subpage_id=PAG0000570FEFFB1&webpage_token=%s&widget_action=handle_event';
 
+const CACHE_PATH = __DIR__ . '/../cache.json';
+const CACHE_TTL_SECONDS = 21600; // 6 hours
+
 function config(): array
 {
     $token = getenv('BIN_TOKEN');
@@ -18,7 +21,76 @@ function config(): array
     return ['token' => $token, 'addressId' => $addressId, 'url' => $url];
 }
 
-function fetch_collections(string $url, string $token, string $addressId): array
+function is_cache_fresh(
+    string $cachePath = CACHE_PATH,
+    int $ttl = CACHE_TTL_SECONDS,
+    ?DateTimeImmutable $now = null
+): bool {
+    if (!is_readable($cachePath)) {
+        return false;
+    }
+
+    $contents = file_get_contents($cachePath);
+    if ($contents === false) {
+        return false;
+    }
+
+    $data = json_decode($contents, true);
+    if (!is_array($data)) {
+        return false;
+    }
+
+    if (!isset($data['created_at']) || !is_string($data['created_at'])) {
+        return false;
+    }
+
+    if (!array_key_exists('response', $data)) {
+        return false;
+    }
+
+    try {
+        $createdAt = new DateTimeImmutable($data['created_at']);
+    } catch (Exception) {
+        return false;
+    }
+
+    $now ??= new DateTimeImmutable();
+
+    if ($createdAt->getTimestamp() > $now->getTimestamp()) {
+        return false;
+    }
+
+    return $now->getTimestamp() - $createdAt->getTimestamp() < $ttl;
+}
+
+function fetch_cached_collections(string $cachePath = CACHE_PATH): array
+{
+    $contents = file_get_contents($cachePath);
+    $data = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
+
+    return $data['response'] ?? [];
+}
+
+function store_cached_collections(array $collections, string $cachePath = CACHE_PATH, ?DateTimeImmutable $now = null): void
+{
+    $now ??= new DateTimeImmutable();
+
+    $dir = dirname($cachePath);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
+
+    $json = json_encode(
+        ['created_at' => $now->format(DateTimeInterface::ATOM), 'response' => $collections],
+        JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+    );
+
+    $tmpPath = $cachePath . '.tmp';
+    file_put_contents($tmpPath, $json);
+    rename($tmpPath, $cachePath);
+}
+
+function fetch_collections_http(string $url, string $token, string $addressId): array
 {
     $body = http_build_query([
         'code_action' => 'find_rounds',
@@ -56,6 +128,18 @@ function fetch_collections(string $url, string $token, string $addressId): array
     $data = json_decode($response, true, flags: JSON_THROW_ON_ERROR);
 
     return $data['response']['collections'] ?? [];
+}
+
+function fetch_collections(string $url, string $token, string $addressId, string $cachePath = CACHE_PATH): array
+{
+    if (is_cache_fresh($cachePath)) {
+        return fetch_cached_collections($cachePath);
+    }
+
+    $collections = fetch_collections_http($url, $token, $addressId);
+    store_cached_collections($collections, $cachePath);
+
+    return $collections;
 }
 
 function round_label(string $round): string
