@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 require __DIR__ . '/functions.php';
 
+log_message(LOG_LEVEL_INFO, 'HTTP request made', [
+    'method' => $_SERVER['REQUEST_METHOD'] ?? '',
+    'uri' => $_SERVER['REQUEST_URI'] ?? '',
+]);
+
 $error = null;
 $grouped = [];
 

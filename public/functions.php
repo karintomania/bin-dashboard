@@ -2,6 +2,24 @@
 
 declare(strict_types=1);
 
+const LOG_LEVEL_INFO = 'INFO';
+const LOG_LEVEL_ERROR = 'ERROR';
+
+function log_message(string $level, string $message, array $context = []): void
+{
+    $entry = [
+        'timestamp' => (new DateTimeImmutable())->format(DATE_ATOM),
+        'level' => $level,
+        'message' => $message,
+    ];
+
+    if ($context !== []) {
+        $entry['context'] = $context;
+    }
+
+    fwrite(STDOUT, json_encode($entry, JSON_UNESCAPED_SLASHES) . "\n");
+}
+
 const API_URL = '%s/w/webpage/waste-collection-days'
     . '?webpage_subpage_id=PAG0000570FEFFB1&webpage_token=%s&widget_action=handle_event';
 
@@ -99,6 +117,8 @@ function fetch_collections_http(string $url, string $token, string $addressId): 
         'action_page_id' => 'PAG0000570FEFFB1',
     ]);
 
+    log_message(LOG_LEVEL_INFO, 'HTTP call made', ['url' => sprintf(API_URL, $url, '***')]);
+
     $ch = curl_init(sprintf(API_URL, $url, $token));
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
@@ -121,6 +141,11 @@ function fetch_collections_http(string $url, string $token, string $addressId): 
 
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
+    if ($status === 401 || $status === 403) {
+        log_message(LOG_LEVEL_ERROR, 'Token is no longer valid', ['status' => $status]);
+        throw new RuntimeException("Unexpected HTTP status: {$status}");
+    }
+
     if ($status !== 200) {
         throw new RuntimeException("Unexpected HTTP status: {$status}");
     }
@@ -133,6 +158,8 @@ function fetch_collections_http(string $url, string $token, string $addressId): 
 function fetch_collections(string $url, string $token, string $addressId, string $cachePath = CACHE_PATH): array
 {
     if (is_cache_fresh($cachePath)) {
+        log_message(LOG_LEVEL_INFO, 'Cache used', ['path' => $cachePath]);
+
         return fetch_cached_collections($cachePath);
     }
 
